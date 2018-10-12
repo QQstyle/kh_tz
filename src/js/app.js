@@ -86,7 +86,6 @@ export default class App extends Component {
 
   modalOpen(bool) {
     this.setState({isVisible: bool})
-    console.log(this.state.isVisible)
   }
 
   onScroll(){
