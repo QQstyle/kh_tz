@@ -68,7 +68,7 @@ export default class App extends Component {
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(function(position) {
         console.log(position.coords.latitude, position.coords.longitude);
-        this.getCinemas(city, limit, type, 55, 37);
+        this.getCinemas(city, limit, type, position.coords.latitude, position.coords.longitude);
       });
     } 
   }
