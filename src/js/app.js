@@ -14,7 +14,10 @@ export default class App extends Component {
       search: '',
       city: '1',
       limit: '10',
-      type: 'title'
+      type: 'title',
+      latitude: '',
+      longitude: '',
+      isVisible: false
     };
     this.onScroll = this.onScroll.bind(this);
   }
@@ -22,7 +25,7 @@ export default class App extends Component {
     const {city, limit} = this.state;
     window.addEventListener('scroll', this.onScroll);
     this.getCities();
-    this.getCinimas(city, limit);
+    this.getCinemas(city, limit);
   }
 
   componentWillUnmount() {
@@ -37,17 +40,15 @@ export default class App extends Component {
     });
   }
 
-  getCinimas(id, limit, type) {
+  getCinemas(id, limit, type, lat, long) {
     let city = id;
-    let citiesLimit = limit;
-    let sortType = type;
     axios
       .get(
-        `https://api.kinohod.ru/api/restful/v1/cinemas?city=${city}&limit=${citiesLimit}&sort=${sortType}`
+        `https://api.kinohod.ru/api/restful/v1/cinemas?city=${id}&limit=${limit}&sort=${type}&latitude=${lat}&longitude=${long}`
       )
       .then(res => {
         const cinemas = res.data.data;
-        this.setState({ cinemas, city });
+        this.setState({ cinemas, city, type, latitude: lat, longitude: long});
       });
   }
 
@@ -58,18 +59,34 @@ export default class App extends Component {
 
   handleClick(id) {
     const {limit, type} = this.state
-    this.getCinimas(id, limit, type);
+    this.getCinemas(id, limit, type);
     this.setState({search: ''});
   }
 
-  onSort(sort){
-    const {city, limit, type} = this.state
-    console.log(this.state.type, sort)
-    this.setState((state) => {
-      return {type: state.sort}
-    });
-    this.getCinimas(city, limit, type);
-    console.log(this.state.type, sort)
+  checkLocation() {
+    const {city, limit, type} = this.state;
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(function(position) {
+        console.log(position.coords.latitude, position.coords.longitude);
+        this.getCinemas(city, limit, type, 55, 37);
+      });
+    } 
+  }
+
+  sortTitle(sort){
+    const {city, limit} = this.state
+    this.getCinemas(city, limit, sort);
+  }
+  sortDistance(sort){
+    const {city, limit} = this.state
+    this.getCinemas(city, limit, sort);
+    this.checkLocation();
+    this.modalOpen(false);
+  }
+
+  modalOpen(bool) {
+    this.setState({isVisible: bool})
+    console.log(this.state.isVisible)
   }
 
   onScroll(){
@@ -79,7 +96,7 @@ export default class App extends Component {
     let y = yOffset + window.innerHeight;
     if(y >= contentHeight){
       const {city, limit, type} = this.state;
-      this.getCinimas(city, limit+10, type);
+      this.getCinemas(city, limit+10, type);
     }
   }
 
@@ -130,14 +147,17 @@ export default class App extends Component {
         </div>
       )
     });
-
+    let modalClass = 'modal';
+      if (this.state.isVisible) {
+        modalClass += ' modal-show';
+      }
     return (
       <div className="container">
         <SimpleStorage parent={this} />
         <div className="search">
           <input className="search_input" type="text" value={this.state.search} ref="search" onChange={this.updateSearch.bind(this)} placeholder="Введите название города"/>
-          <button className="search_btn" onClick={() => this.onSort('title')}>sort by title</button>
-          <button className="search_btn" onClick={() => this.onSort('distance')}>sort by range</button>
+          <button className="search_btn" onClick={() => this.sortTitle('title')}>sort by title</button>
+          <button className="search_btn" onClick={() => this.modalOpen(true)}>sort by range</button>
         </div>
         <div className="city">
           <div className="city_list">
@@ -146,6 +166,16 @@ export default class App extends Component {
         </div>
         <div className="cinemas">
           <div className="cinemas_list" id="cinemas_list">{cinemasList}</div>
+        </div>
+        <div className={modalClass} >
+          <div className="modal_content">
+            <p>Для того чтобы показать ближайшие к Вам кинотеатры, нам необходимо знать где Вы находитесь. 
+            Для этого нам нужно разрешение на определение Вашего местоположения</p>
+            <div className="modal_content-wrapper">
+              <button className="modal_content-btn btn-left" onClick={() => this.modalOpen(false)}>Отмена</button>
+              <button className="modal_content-btn btn-right" onClick={() => this.sortDistance('distance')}>OK</button>
+            </div>
+          </div>
         </div>
       </div>
     );
