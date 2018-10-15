@@ -23,10 +23,10 @@ export default class App extends Component {
     };
   }
   componentWillMount() {
-    const { city, limit } = this.state;
+    const { city, range, limit } = this.state;
     window.addEventListener("scroll", this.onScroll);
     this.getCities();
-    this.getCinemas(city, limit);
+    this.getCinemas(city, range, limit);
   }
 
   componentWillUnmount() {
@@ -40,9 +40,9 @@ export default class App extends Component {
     });
   };
 
-  getCinemas = (id, limit, type, lat, long) => {
+  getCinemas = (id, range, limit, type, lat, long) => {
     let city = id;
-    let range = this.state.range;
+    range = this.state.range;
     axios
       .get(
         `https://api.kinohod.ru/api/restful/v1/cinemas?city=${id}&rangeStart=${range}&limit=${limit}&sort=${type}&latitude=${lat}&longitude=${long}`
@@ -50,7 +50,9 @@ export default class App extends Component {
       .then(res => {
         const cinemas = res.data.data;
         this.setState({ cinemas, range, limit, city, type, latitude: lat, longitude: long });
+        console.log(this.state)
       });
+      
   };
 
   updateSearch = e => {
@@ -74,17 +76,18 @@ export default class App extends Component {
   };
 
   checkLocation = () => {
-    const { city, limit } = this.state;
+    const { city, range, limit } = this.state;
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(position => {
         this.getCinemas(
           city,
+          range,
           limit,
           "distance",
           position.coords.latitude,
           position.coords.longitude
         );
-        this.setState({latitude: posposition.coords.latitude, longitude: position.coords.longitude})
+        this.setState({latitude: position.coords.latitude, longitude: position.coords.longitude})
       });
     }
     
@@ -111,9 +114,9 @@ export default class App extends Component {
     let yOffset = window.pageYOffset;
     let y = yOffset + window.innerHeight;
     if (y >= contentHeight) {
-      const { city, limit, type, longitude, latitude} = this.state;
+      const { city, range, limit, type, longitude, latitude} = this.state;
       let nexLimit = limit+10;
-      this.getCinemas(city, nexLimit, type, longitude, latitude);
+      this.getCinemas(city, range, nexLimit, type, longitude, latitude);
     }
   };
 
