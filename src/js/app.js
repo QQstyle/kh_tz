@@ -84,8 +84,10 @@ export default class App extends Component {
           position.coords.latitude,
           position.coords.longitude
         );
+        this.setState({latitude: posposition.coords.latitude, longitude: position.coords.longitude})
       });
     }
+    
   };
 
   sortTitle = sort => {
@@ -109,9 +111,9 @@ export default class App extends Component {
     let yOffset = window.pageYOffset;
     let y = yOffset + window.innerHeight;
     if (y >= contentHeight) {
-      const { city, limit, type } = this.state;
+      const { city, limit, type, longitude, latitude} = this.state;
       let nexLimit = limit+10;
-      this.getCinemas(city, nexLimit, type);
+      this.getCinemas(city, nexLimit, type, longitude, latitude);
     }
   };
 
