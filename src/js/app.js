@@ -14,12 +14,13 @@ export default class App extends Component {
       search: "",
       city: "1",
       limit: "10",
+      range: "0",
       type: "title",
       latitude: "",
       longitude: "",
-      isVisible: false
+      isVisible: false,
+      permission: false
     };
-    this.onScroll = this.onScroll.bind(this);
   }
   componentWillMount() {
     const { city, limit } = this.state;
@@ -32,68 +33,77 @@ export default class App extends Component {
     window.removeEventListener("scroll", this.onScroll);
   }
 
-  getCities() {
+  getCities = () => {
     axios.get(`https://api.kinohod.ru/api/restful/v1/cities`).then(res => {
       const cities = res.data.data;
       this.setState({ cities });
     });
-  }
+  };
 
-  getCinemas(id, limit, type, lat, long) {
+  getCinemas = (id, limit, type, lat, long) => {
     let city = id;
-
+    let range = this.state.range;
     axios
       .get(
-        `https://api.kinohod.ru/api/restful/v1/cinemas?city=${id}&limit=${limit}&sort=${type}&latitude=${lat}&longitude=${long}`
+        `https://api.kinohod.ru/api/restful/v1/cinemas?city=${id}&rangeStart=${range}&limit=${limit}&sort=${type}&latitude=${lat}&longitude=${long}`
       )
       .then(res => {
         const cinemas = res.data.data;
         this.setState({ cinemas, city, type, latitude: lat, longitude: long });
       });
-  }
+  };
 
-  updateSearch(e) {
+  updateSearch = e => {
     this.setState({ search: e.target.value.substr(0, 25).trim() });
-  }
+  };
 
-  handleClick(id) {
+  handleClick = id => {
     const { limit, type } = this.state;
     this.getCinemas(id, limit, type);
     this.setState({ search: "" });
-  }
+  };
 
-  checkLocation() {
-    const { city, limit, type } = this.state;
+  handleModalClick = type => {
+    const { permission } = this.state;
+    if (!permission && type === "distance") {
+      this.modalOpen(true);
+    } else if (permission && type === "distance") {
+      this.sortDistance();
+    }
+    this.sortTitle(type);
+  };
+
+  checkLocation = () => {
+    const { city, limit } = this.state;
     if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(function(position) {
-        console.log(position.coords.latitude, position.coords.longitude);
+      navigator.geolocation.getCurrentPosition(position => {
         this.getCinemas(
           city,
           limit,
-          type,
+          "distance",
           position.coords.latitude,
           position.coords.longitude
         );
       });
     }
-  }
+  };
 
-  sortTitle(sort) {
+  sortTitle = sort => {
     const { city, limit } = this.state;
     this.getCinemas(city, limit, sort);
-  }
-  sortDistance(sort) {
-    const { city, limit } = this.state;
-    this.getCinemas(city, limit, sort);
+  };
+
+  sortDistance = () => {
     this.checkLocation();
     this.modalOpen(false);
-  }
+    this.setState({ permission: true });
+  };
 
-  modalOpen(bool) {
+  modalOpen = bool => {
     this.setState({ isVisible: bool });
-  }
+  };
 
-  onScroll() {
+  onScroll = () => {
     let wrap = document.getElementById("cinemas_list");
     let contentHeight = wrap.offsetHeight;
     let yOffset = window.pageYOffset;
@@ -102,7 +112,7 @@ export default class App extends Component {
       const { city, limit, type } = this.state;
       this.getCinemas(city, limit + 10, type);
     }
-  }
+  };
 
   render() {
     const { cinemas, cities, search } = this.state;
@@ -178,16 +188,19 @@ export default class App extends Component {
             type="text"
             value={this.state.search}
             ref="search"
-            onChange={this.updateSearch.bind(this)}
+            onChange={this.updateSearch}
             placeholder="Введите название города"
           />
           <button
             className="search_btn"
-            onClick={() => this.sortTitle("title")}
+            onClick={() => this.handleModalClick("title")}
           >
             sort by title
           </button>
-          <button className="search_btn" onClick={() => this.modalOpen(true)}>
+          <button
+            className="search_btn"
+            onClick={() => this.handleModalClick("distance")}
+          >
             sort by range
           </button>
         </div>
@@ -215,7 +228,7 @@ export default class App extends Component {
               </button>
               <button
                 className="modal_content-btn btn-right"
-                onClick={() => this.sortDistance("distance")}
+                onClick={this.sortDistance}
               >
                 OK
               </button>

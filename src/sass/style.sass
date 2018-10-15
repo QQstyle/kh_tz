@@ -2,6 +2,7 @@
   margin: 0
   padding: 0
   box-sizing: border-box
+  outline: none
 body
   background: #ccc
   font-family: Helvetica, Arial, sans-serif
@@ -22,26 +23,31 @@ body
     &_input
       font-size: 16px
       padding: 4px 10px
-      width: 500px
+      width: 400px
       height: 40px
     &_btn
-      width: 120px
+      width: 100px
       height: 40px
-      font-size: 16px
+      font-size: 14px
       line-height: 36px
       color: #2196f3
       background-color: #fff
       border: 2px solid #2196f3
       border-radius: 4px
       padding: 0
+      cursor: pointer
+      transition: .5s
+      &:hover
+        background-color: #2196f3
+        color: #fff
   .city
     width: 640px
     position: relative
     &_list
       position: absolute
       top: -8px
-      left: -2px
-      width: 500px
+      left: 0
+      width: 400px
       background-color: #fff
       max-height: 300px
       border: 2px solid #c9c9c9
@@ -58,7 +64,6 @@ body
   .cinemas
     width: 640px
     &_list
-
       &-item
         display: flex
         justify-content: space-between
@@ -66,7 +71,6 @@ body
         background-color: #fff
         border-bottom: 4px solid #787878
         height: 120px
-
         &-left
           .title
             margin: 0
@@ -78,6 +82,7 @@ body
             margin: 0
             margin-bottom: 6px
             font-size: 14px
+            font-weight: 300
             color: #9c9c9c
           .subway_wrapper
             display: flex
@@ -94,6 +99,7 @@ body
               margin-right: 5px
             &_name
               font-size: 14px
+              font-weight: 300
               color: #9c9c9c
         &-right
           display: flex
@@ -132,7 +138,7 @@ body
     position: fixed
     justify-content: center
     align-items: center
-    background-color: rgba(225, 225, 225, .5)
+    background-color: rgba(0, 0, 0, .5)
     display: none
     &_content
       width: 640px

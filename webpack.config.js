@@ -2,6 +2,7 @@ const path = require("path");
 
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
+const CleanWebpackPlugin = require("clean-webpack-plugin");
 
 const paths = {
   DIST: path.resolve(__dirname, "dist"),
@@ -13,7 +14,8 @@ module.exports = {
   entry: path.join(paths.JS, "app.js"),
   output: {
     path: paths.DIST,
-    filename: "app.bundle.js"
+    filename: "app.bundle.js",
+    publicPath: "../"
   },
   plugins: [
     new HtmlWebpackPlugin({
@@ -37,7 +39,7 @@ module.exports = {
         test: /\.sass$/,
         use: ExtractTextPlugin.extract({
           fallback: "style-loader",
-          use: ["css-loader", "sass-loader"],
+          use: ["css-loader", "postcss-loader", "sass-loader"],
           publicPath: path.join(paths.SRC, './sass')
         }) 
       },
