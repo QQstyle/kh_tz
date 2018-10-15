@@ -14,10 +14,10 @@ module.exports = {
   entry: path.join(paths.JS, "app.js"),
   output: {
     path: paths.DIST,
-    filename: "app.bundle.js",
+    filename: "app.bundle.js"
   },
   devServer: {
-    contentBase: './'
+    contentBase: "./"
   },
   plugins: [
     new HtmlWebpackPlugin({
@@ -42,8 +42,8 @@ module.exports = {
         use: ExtractTextPlugin.extract({
           fallback: "style-loader",
           use: ["css-loader", "postcss-loader", "sass-loader"],
-          publicPath: path.join(paths.SRC, './sass')
-        }) 
+          publicPath: path.join(paths.SRC, "./sass")
+        })
       },
       {
         test: /\.(png|jpg|gif)$/,

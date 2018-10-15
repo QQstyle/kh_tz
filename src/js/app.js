@@ -13,7 +13,7 @@ export default class App extends Component {
       cities: [],
       search: "",
       city: "1",
-      limit: "10",
+      limit: 10,
       range: "0",
       type: "title",
       latitude: "",
@@ -49,7 +49,7 @@ export default class App extends Component {
       )
       .then(res => {
         const cinemas = res.data.data;
-        this.setState({ cinemas, city, type, latitude: lat, longitude: long });
+        this.setState({ cinemas, range, limit, city, type, latitude: lat, longitude: long });
       });
   };
 
@@ -110,7 +110,8 @@ export default class App extends Component {
     let y = yOffset + window.innerHeight;
     if (y >= contentHeight) {
       const { city, limit, type } = this.state;
-      this.getCinemas(city, limit + 10, type);
+      let nexLimit = limit+10;
+      this.getCinemas(city, nexLimit, type);
     }
   };
 
